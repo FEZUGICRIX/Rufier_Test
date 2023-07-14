@@ -2,8 +2,9 @@ from second_win import*
 from instr import *
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QPushButton, QLabel
 
+# 1 окно приложения
 class MainWin(QWidget):
     def __init__(self):
         super().__init__()
@@ -12,14 +13,16 @@ class MainWin(QWidget):
         self.connect()
         self.show()
 
+    #Метод настройки экрана
     def set_appear(self):
         self.setWindowTitle(txt_title)
         self.resize(win_width, win_height)
         self.move(win_x, win_y)
+        self.setStyleSheet(style)
 
-
-
+    #Метод создания и размещения виджетов
     def intui(self):
+        #Создание виджетов
         self.txt_hello = QLabel(txt_hello)
         self.txt_instruction = QLabel(txt_instruction)
         self.link = QLabel()
@@ -27,7 +30,7 @@ class MainWin(QWidget):
         self.link.setOpenExternalLinks(True)
         self.link.setTextFormat(Qt.AutoText)
         self.txt_next = QPushButton(txt_next)
-
+        #Размещение виджетов
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.txt_hello, alignment=Qt.AlignLeft)
         self.layout.addWidget(self.txt_instruction, alignment=Qt.AlignLeft)
@@ -39,6 +42,7 @@ class MainWin(QWidget):
     def connect(self):
         self.txt_next.clicked.connect(self.next_click)
 
+    #Метод перехода на следующий экран
     def next_click(self):
         self.tw  = Test_win()
         self.hide()

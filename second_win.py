@@ -4,8 +4,10 @@ from PyQt5.QtGui import QFont
 from instr import *
 from final_win import Finalwindow
 
+# 2 окно приложения
 class Experiment():
-    def __init__(self, txt_age, test1, test2, test3):
+    def __init__(self,txt_hintname, txt_age, test1, test2, test3):
+        self.txt_hintname = txt_hintname
         self.txt_age = txt_age
         self.test1 = test1
         self.test2 = test2
@@ -18,21 +20,24 @@ class Test_win(QWidget):
         self.intui()
         self.connects_timers()
         self.connect()
+        self.checked = False
         self.show()
 
+    #Метод настройки экрана
     def set_appear(self):
         self.setWindowTitle(txt_title)
         self.resize(win_width, win_height)
         self.move(win_x, win_y)
+        self.setStyleSheet(style)
 
-
+    #Метод создания и размещения виджетов
     def intui(self):
         # Создание виджетов
         self.txt_name = QLabel(txt_name)
         self.txt_hintname = QLineEdit()
         self.txt_hintname.setPlaceholderText(txt_hintname)
         self.txt_age_label = QLabel(txt_age)
-        self.txt_age = QLineEdit()
+        self.txt_age = QLineEdit('0')
         self.txt_age.setPlaceholderText(txt_age)
         self.txt_test1 = QLabel(txt_test1)
         self.txt_starttest1 = QPushButton(txt_starttest1)
@@ -74,12 +79,14 @@ class Test_win(QWidget):
         self.layout_time_h.addLayout(self.layout_time_v)
         self.setLayout(self.layout_time_h)
 
-    def empty(self):
-        self.empty_input = QLabel('Не все поля были заполнены!')
+    #Метод для создавания надписей в случае ошибки
+    def empty(self, text):
+        self.empty_input = QLabel(text)
         self.empty_input.setStyleSheet('color:rgb(131, 49, 68)')
         self.empty_input.setFont(QFont('Georgia', 15, QFont.Bold))
         self.layout_time_v.addWidget(self.empty_input, alignment=Qt.AlignHCenter)
 
+    #Создание 3 таймеров
     def timer_test(self):
         self.timer = QTimer()
         self.time = QTime(0, 0, 16)
@@ -98,6 +105,7 @@ class Test_win(QWidget):
         self.timer.timeout.connect(self.timer3Event)
         self.timer.start(1000)
 
+    #Настройка 3 таймеров
     def timer1Event(self):
         self.time = self.time.addSecs(-1)
         text = self.time.toString('hh:mm:ss')
@@ -124,14 +132,17 @@ class Test_win(QWidget):
         if self.time.toString("hh:mm:ss") == "00:00:00":
             self.timer.stop()
 
+    #Подключение методов таймера, при нажатии на соответствующую кнопку
     def connects_timers(self):
         self.txt_starttest1.clicked.connect(self.timer_test)
         self.txt_starttest2.clicked.connect(self.timer_sits)
         self.txt_starttest3.clicked.connect(self.timer_final)
 
+    #Данный метод вызывается при нажатии на кнопку перехода на следуюший экран
     def connect(self):
         self.txt_sendresults.clicked.connect(self.check_input)
 
+    #Метод проверки вводимых данных
     def check_input(self):
         age_text = self.txt_age.text()
         hint1_text = self.txt_hinttest1.text()
@@ -139,7 +150,6 @@ class Test_win(QWidget):
         hint3_text = self.txt_hinttest3.text()
 
         list_input = [self.txt_age, self.txt_hinttest1, self.txt_hinttest2, self.txt_hinttest3]
-
         empty_fields = []
 
         for input_field in list_input:
@@ -147,17 +157,24 @@ class Test_win(QWidget):
                 empty_fields.append(input_field)
 
         if len(empty_fields) > 0:
-            print('Поля не заполнены')
-            self.empty()
+            if not self.checked:
+                self.empty('Не все поля были заполнены!')
+                self.checked = True
             for field in empty_fields:
-                field.setStyleSheet("background-color: rgb(241, 146, 181); color: white;")
+                field.setStyleSheet("background-color: rgb(231, 183, 149); color: white;")
                 field.setFont(QFont("Times", 10, QFont.Bold))
+            if int(age_text) < 7:
+                if not self.checked:
+                    self.empty('Нельзя проводить тест, если вам меньше 7 лет!')
+                    self.checked = True
         else:
             self.next_click()
 
+    #Переход на следующий экран, создание объекта класса Experiment
     def next_click(self):
         self.hide()
-        self.exp = Experiment(self.txt_age.text(),
+        self.exp = Experiment(self.txt_hintname.text(),
+                              self.txt_age.text(),
                               self.txt_hinttest1.text(),
                               self.txt_hinttest2.text(),
                               self.txt_hinttest3.text())
