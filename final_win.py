@@ -68,7 +68,7 @@ class Finalwindow(QWidget):
         label = QLabel()
         pixmap = QPixmap("image/img.png")
         label.setPixmap(pixmap)
-        self.text = QLabel('Таблица, по которой был провен рассчет⬇️⬇️⬇️')
+        self.text = QLabel('Таблица, по которой был проведен рассчет⬇️⬇️⬇️')
         self.work_test = QLabel(self.exp.txt_hintname + " "  + txt_workheart + str(self.calculation(self.result())))
         self.index_text = QLabel(txt_index + str(self.index))
         # Создание лейаутов и размещение виджетов
