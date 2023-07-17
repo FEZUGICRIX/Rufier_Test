@@ -20,7 +20,8 @@ class Test_win(QWidget):
         self.intui()
         self.connects_timers()
         self.connect()
-        self.checked = False
+        self.checked1 = False
+        self.checked2 = False
         self.show()
 
     #Метод настройки экрана
@@ -79,20 +80,13 @@ class Test_win(QWidget):
         self.layout_time_h.addLayout(self.layout_time_v)
         self.setLayout(self.layout_time_h)
 
-    #Метод для создавания надписей в случае ошибки
-    def empty(self, text):
-        self.empty_input = QLabel(text)
-        self.empty_input.setStyleSheet('color:rgb(131, 49, 68)')
-        self.empty_input.setFont(QFont('Georgia', 15, QFont.Bold))
-        self.layout_time_v.addWidget(self.empty_input, alignment=Qt.AlignHCenter)
-
-    #Создание 3 таймеров
     def timer_test(self):
         self.timer = QTimer()
         self.time = QTime(0, 0, 16)
         self.timer.timeout.connect(self.timer1Event)
         self.timer.start(1000)  # Обновление каждую секунду
 
+    #Создание 3 таймеров
     def timer_sits(self):
         self.timer = QTimer()
         self.time = QTime(0, 0, 31)
@@ -105,7 +99,6 @@ class Test_win(QWidget):
         self.timer.timeout.connect(self.timer3Event)
         self.timer.start(1000)
 
-    #Настройка 3 таймеров
     def timer1Event(self):
         self.time = self.time.addSecs(-1)
         text = self.time.toString('hh:mm:ss')
@@ -113,6 +106,7 @@ class Test_win(QWidget):
         if self.time.toString("hh:mm:ss") == "00:00:00":
             self.timer.stop()
 
+    #Настройка 3 таймеров
     def timer3Event(self):
         self.time = self.time.addSecs(-1)
         text = self.time.toString('hh:mm:ss')
@@ -142,7 +136,15 @@ class Test_win(QWidget):
     def connect(self):
         self.txt_sendresults.clicked.connect(self.check_input)
 
-    #Метод проверки вводимых данных
+
+    #Метод для создавания надписей в случае ошибки
+    def empty(self, text):
+        self.empty_input = QLabel(text)
+        self.empty_input.setStyleSheet('color:rgb(131, 49, 68)')
+        self.empty_input.setFont(QFont('Georgia', 15, QFont.Bold))
+        self.layout_time_v.addWidget(self.empty_input, alignment=Qt.AlignHCenter)
+
+    # Метод проверки вводимых данных
     def check_input(self):
         age_text = self.txt_age.text()
         hint1_text = self.txt_hinttest1.text()
@@ -157,20 +159,23 @@ class Test_win(QWidget):
                 empty_fields.append(input_field)
 
         if len(empty_fields) > 0:
-            if not self.checked:
+            if not self.checked1:
                 self.empty('Не все поля были заполнены!')
-                self.checked = True
+                self.checked1 = True
             for field in empty_fields:
                 field.setStyleSheet("background-color: rgb(231, 183, 149); color: white;")
                 field.setFont(QFont("Times", 10, QFont.Bold))
-            if int(age_text) < 7:
-                if not self.checked:
-                    self.empty('Нельзя проводить тест, если вам меньше 7 лет!')
-                    self.checked = True
-        else:
+                while not self.checked2:
+                    if not age_text or int(age_text) < 7 and not self.checked2:
+                        self.empty('Нельзя проводить тест, если вам меньше 7 лет!')
+                    else:
+                        self.checked2 = True
+            else:
+                self.next_click()
+        if self.checked1 and self.checked2:
             self.next_click()
 
-    #Переход на следующий экран, создание объекта класса Experiment
+    # Переход на следующий экран, создание объекта класса Experiment
     def next_click(self):
         self.hide()
         self.exp = Experiment(self.txt_hintname.text(),
