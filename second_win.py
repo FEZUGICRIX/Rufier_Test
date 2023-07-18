@@ -20,8 +20,7 @@ class Test_win(QWidget):
         self.intui()
         self.connects_timers()
         self.connect()
-        self.checked1 = False
-        self.checked2 = False
+        self.final_check = False
         self.show()
 
     #Метод настройки экрана
@@ -154,26 +153,31 @@ class Test_win(QWidget):
         list_input = [self.txt_age, self.txt_hinttest1, self.txt_hinttest2, self.txt_hinttest3]
         empty_fields = []
 
+        empty_fields = [input_field for input_field in list_input if not input_field.text().isdigit() or input_field.text() == '']
+        all_fields_are_digits = all(input_field.text().isdigit() for input_field in empty_fields)
+
         for input_field in list_input:
-            if input_field.text() == '':
+            if not input_field.text().isdigit() or input_field.text() == '':
                 empty_fields.append(input_field)
 
+
         if len(empty_fields) > 0:
-            if not self.checked1:
-                self.empty('Не все поля были заполнены!')
-                self.checked1 = True
+            self.empty('Не все поля были заполнены!')
             for field in empty_fields:
                 field.setStyleSheet("background-color: rgb(231, 183, 149); color: white;")
                 field.setFont(QFont("Times", 10, QFont.Bold))
-                while not self.checked2:
-                    if not age_text or int(age_text) < 7 and not self.checked2:
-                        self.empty('Нельзя проводить тест, если вам меньше 7 лет!')
-                    else:
-                        self.checked2 = True
-            else:
-                self.next_click()
-        if self.checked1 and self.checked2:
+
+        if not age_text or int(age_text) < 7:
+            self.empty('Нельзя проводить тест, если вам меньше 7 лет!')
+
+        if int(age_text) >= 7 and len(empty_fields) == 0 and all(
+                input_field.text().isdigit() for input_field in empty_fields) and bool(empty_fields) and all(
+                not isinstance(field, str) for field in empty_fields):
+            self.final_check = True
             self.next_click()
+
+        else:
+            self.connect()
 
     # Переход на следующий экран, создание объекта класса Experiment
     def next_click(self):
