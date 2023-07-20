@@ -13,6 +13,7 @@ class Experiment():
         self.test2 = test2
         self.test3 = test3
 
+
 class Test_win(QWidget):
     def __init__(self):
         super().__init__()
@@ -20,7 +21,8 @@ class Test_win(QWidget):
         self.intui()
         self.connects_timers()
         self.connect()
-        self.checked = False
+        self.ob1 = False
+        self.ob2 = False
         self.show()
 
     #Метод настройки экрана
@@ -37,7 +39,7 @@ class Test_win(QWidget):
         self.txt_hintname = QLineEdit()
         self.txt_hintname.setPlaceholderText(txt_hintname)
         self.txt_age_label = QLabel(txt_age)
-        self.txt_age = QLineEdit('0')
+        self.txt_age = QLineEdit()
         self.txt_age.setPlaceholderText(txt_age)
         self.txt_test1 = QLabel(txt_test1)
         self.txt_starttest1 = QPushButton(txt_starttest1)
@@ -79,98 +81,91 @@ class Test_win(QWidget):
         self.layout_time_h.addLayout(self.layout_time_v)
         self.setLayout(self.layout_time_h)
 
-    #Метод для создавания надписей в случае ошибки
-    def empty(self, text):
-        self.empty_input = QLabel(text)
-        self.empty_input.setStyleSheet('color:rgb(131, 49, 68)')
-        self.empty_input.setFont(QFont('Georgia', 15, QFont.Bold))
-        self.layout_time_v.addWidget(self.empty_input, alignment=Qt.AlignHCenter)
-
-    #Создание 3 таймеров
-    def timer_test(self):
+    # Создание и настройки таймеров
+    def timers(self, min, sec, start, settings_timers):
         self.timer = QTimer()
-        self.time = QTime(0, 0, 16)
-        self.timer.timeout.connect(self.timer1Event)
-        self.timer.start(1000)  # Обновление каждую секунду
+        self.time = QTime(0, min, sec)
+        self.timer.timeout.connect(settings_timers)
+        self.timer.start(start)
 
-    def timer_sits(self):
+    def settings_timers(self, min, sec, style, style_for_timer3):
         self.timer = QTimer()
-        self.time = QTime(0, 0, 31)
-        self.timer.timeout.connect(self.timer2Event)
-        self.timer.start(1500)  # Обновление каждые 1,5 секунды
-
-    def timer_final(self):
-        self.timer = QTimer()
-        self.time = QTime(0, 1, 1)
-        self.timer.timeout.connect(self.timer3Event)
+        self.time = QTime(0, min, sec)
+        self.timer.timeout.connect(self.on_timer_timeout)
         self.timer.start(1000)
 
-    #Настройка 3 таймеров
-    def timer1Event(self):
+        self.timer_style = style
+        self.timer_style_for_timer3 = style_for_timer3
+
+    def on_timer_timeout(self):
         self.time = self.time.addSecs(-1)
         text = self.time.toString('hh:mm:ss')
         self.text_timer.setText(text)
-        if self.time.toString("hh:mm:ss") == "00:00:00":
-            self.timer.stop()
+        if self.timer_style_for_timer3:
+            if self.time.toString("hh:mm:ss") > "00:00:45" or self.time.toString("hh:mm:ss") <= "00:00:15":
+                self.text_timer.setStyleSheet(combined_style)
+            elif self.time.toString("hh:mm:ss") <= "00:00:46" and self.time.toString("hh:mm:ss") >= "00:00:15":
+                self.text_timer.setStyleSheet(style1)
 
-    def timer3Event(self):
-        self.time = self.time.addSecs(-1)
-        text = self.time.toString('hh:mm:ss')
-        self.text_timer.setText(text)
-        if self.time.toString("hh:mm:ss") > "00:00:45" or self.time.toString("hh:mm:ss") <= "00:00:15":
-            self.text_timer.setStyleSheet(combined_style)
-        elif self.time.toString("hh:mm:ss") <= "00:00:46" and  self.time.toString("hh:mm:ss") >= "00:00:15":
-            self.text_timer.setStyleSheet(style1)
-        if self.time.toString("hh:mm:ss") == "00:00:00":
-            self.timer.stop()
-
-    def timer2Event(self):
-        self.time = self.time.addSecs(-1)
-        text = self.time.toString('hh:mm:ss'[6:8])
-        self.text_timer.setText(text)
-        self.text_timer.setFont(QFont("Times", 36, QFont.Bold))
         if self.time.toString("hh:mm:ss") == "00:00:00":
             self.timer.stop()
 
     #Подключение методов таймера, при нажатии на соответствующую кнопку
     def connects_timers(self):
-        self.txt_starttest1.clicked.connect(self.timer_test)
-        self.txt_starttest2.clicked.connect(self.timer_sits)
-        self.txt_starttest3.clicked.connect(self.timer_final)
+        self.txt_starttest1.clicked.connect(lambda: self.settings_timers(0, 16, None, False))
+        self.txt_starttest2.clicked.connect(lambda: self.settings_timers(0, 31, QFont("Times", 36, QFont.Bold), False))
+        self.txt_starttest3.clicked.connect(lambda: self.settings_timers(1, 1, combined_style, True))
+
+    #Метод для создавания надписей в случае ошибки
+    def input_error(self, text):
+        if text == txt_error:
+            if self.ob1:
+                return
+        else:
+            if self.ob2:
+                return
+        self.input = QLabel(text)
+        self.input.setStyleSheet(notification_styles)
+        self.layout_time_v.addWidget(self.input, alignment=Qt.AlignVCenter)
 
     #Данный метод вызывается при нажатии на кнопку перехода на следуюший экран
     def connect(self):
         self.txt_sendresults.clicked.connect(self.check_input)
 
-    #Метод проверки вводимых данных
+    # Метод проверки вводимых данных
     def check_input(self):
         age_text = self.txt_age.text()
-        hint1_text = self.txt_hinttest1.text()
-        hint2_text = self.txt_hinttest2.text()
-        hint3_text = self.txt_hinttest3.text()
-
         list_input = [self.txt_age, self.txt_hinttest1, self.txt_hinttest2, self.txt_hinttest3]
-        empty_fields = []
+        error_fields = []
 
         for input_field in list_input:
-            if input_field.text() == '':
-                empty_fields.append(input_field)
+            if input_field.text() == '' or not input_field.text().isdigit() or int(input_field.text()) < 0:
+                error_fields.append(input_field)
 
-        if len(empty_fields) > 0:
-            if not self.checked:
-                self.empty('Не все поля были заполнены!')
-                self.checked = True
-            for field in empty_fields:
+        if len(error_fields) > 0:
+            has_negative_number = any(not i.text().isdigit() for i in error_fields)
+            if has_negative_number:
+                self.input_error(txt_error)
+                self.ob1 = True
+
+            for field in error_fields:
                 field.setStyleSheet("background-color: rgb(231, 183, 149); color: white;")
                 field.setFont(QFont("Times", 10, QFont.Bold))
-            if int(age_text) < 7:
-                if not self.checked:
-                    self.empty('Нельзя проводить тест, если вам меньше 7 лет!')
-                    self.checked = True
+                field.setPlaceholderText('Error')
+
+            has_negative_number = False
+            error_fields.clear()
+            self.connect()
+            return
+
+        if not age_text or int(age_text) < 7:
+            self.input_error('Нельзя проводить тест, если вам меньше 7 лет!')
+            self.ob2 = True
+
         else:
             self.next_click()
 
-    #Переход на следующий экран, создание объекта класса Experiment
+    # Переход на следующий экран, создание объекта класса Experiment
     def next_click(self):
         self.hide()
         self.exp = Experiment(self.txt_hintname.text(),

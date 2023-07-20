@@ -37,8 +37,6 @@ class Finalwindow(QWidget):
         elif 7 <= age <= 8:
             self.calculation(21)
             return 21
-        else:
-            print('НЕЛЬЗЯ проводить тест, если вам меньше 7 лет!')
 
     #Метод рассчета индекса руфье
     def calculation(self, start_index):
